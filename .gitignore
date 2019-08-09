@@ -141,6 +141,7 @@ gradle-app.setting
 **/build/
 
 config.properties
+table.properties
 
 ### How to update git index with new .gitignore ###
 
