@@ -1,6 +1,6 @@
 package kr.djgis.shpbackup3.network
 
-import kr.djgis.shpbackup3.Config
+import kr.djgis.shpbackup3.property.Config
 import java.sql.Connection
 import java.sql.DriverManager
 

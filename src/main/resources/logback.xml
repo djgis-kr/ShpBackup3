@@ -38,11 +38,11 @@
         </cyclicBufferTracker>
     </appender>
 
-    <!--    <logger name="kr.djgis.shpbackup3.Execute" level="DEBUG">-->
-    <!--        <appender-ref ref="ROLLING"/>-->
-    <!--    </logger>-->
+        <logger name="kr.djgis.shpbackup3.Execute" level="DEBUG">
+            <appender-ref ref="ROLLING"/>
+        </logger>
 
-    <logger name="kr.djgis.shpbackup3.Execute" level="DEBUG">
-        <appender-ref ref="EMAIL"/>
-    </logger>
+<!--    <logger name="kr.djgis.shpbackup3.Execute" level="DEBUG">-->
+<!--        <appender-ref ref="EMAIL"/>-->
+<!--    </logger>-->
 </configuration>

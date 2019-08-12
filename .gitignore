@@ -142,6 +142,9 @@ gradle-app.setting
 
 config.properties
 table.properties
+prequery.txt
+postquery.txt
+shp/
 
 ### How to update git index with new .gitignore ###
 

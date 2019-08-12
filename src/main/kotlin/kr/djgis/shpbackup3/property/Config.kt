@@ -1,4 +1,4 @@
-package kr.djgis.shpbackup3
+package kr.djgis.shpbackup3.property
 
 object Config {
 
@@ -14,8 +14,9 @@ object Config {
     lateinit var pUserName: String
     lateinit var pKey: String
     lateinit var origin: String
+    // TODO: PRE, POST 쿼리 파일 대응
 
-    private val property = Preferences.get()
+    private val property = initPropertyAt("./config.properties")
 
     init {
         this.apply {
