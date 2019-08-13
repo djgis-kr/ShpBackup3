@@ -2,6 +2,9 @@ buildscript {
     ext.kotlin_version = '1.3.41'
 
     repositories {
+        maven {
+            url "https://download.osgeo.org/webdav/geotools/"
+        }
         mavenCentral()
     }
     dependencies {
@@ -22,6 +25,9 @@ sourceCompatibility = 1.8
 mainClassName = "kr.djgis.shpbackup3.Main"
 
 repositories {
+    maven {
+        url "https://download.osgeo.org/webdav/geotools/"
+    }
     mavenCentral()
 }
 
@@ -35,8 +41,10 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.17'
     // https://mvnrepository.com/artifact/org.postgresql/postgresql
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.6'
-    compile('javax.activation:activation:1.1.1')
-    compile('javax.mail:mail:1.4.7')
+    // https://mvnrepository.com/artifact/org.geotools/gt-main
+    compile group: 'org.geotools', name: 'gt-main', version: '21.1'
+    // https://mvnrepository.com/artifact/org.geotools/gt-shapefile
+    compile group: 'org.geotools', name: 'gt-shapefile', version: '21.2'
 }
 
 compileKotlin {

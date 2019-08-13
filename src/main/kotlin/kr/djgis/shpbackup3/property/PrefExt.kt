@@ -21,4 +21,4 @@ fun initPropertyAt(filePath: String): Properties {
 
 infix fun Properties.of(key: String): String = this[key.toUpperCase()] as String
 
-infix fun String.at(properties: Properties): String = properties[this] as String
+infix fun String.at(properties: Properties): String = properties[this.replace(".shp", "")] as String

@@ -4,7 +4,7 @@ import kr.djgis.shpbackup3.property.Config
 import java.sql.Connection
 import java.sql.DriverManager
 
-object MysqlConn {
+object MysqlConnection {
 
     internal fun getConnection(
         dbCode: String = Config.dbCode,
@@ -13,9 +13,10 @@ object MysqlConn {
         userName: String = Config.mUserName,
         password: String = Config.mKey
     ): Connection {
+        println("jdbc:mysql://$host:$port/$dbCode?autoReconnect=true&user=$userName&password=$password&serverTimezone=UTC")
         Class.forName("com.mysql.cj.jdbc.Driver")
         return DriverManager.getConnection(
-            "jdbc:mysql://$host:$port/$dbCode?user=$userName&password=$password&serverTimezone=UTC&autoReconnect=true"
+            "jdbc:mysql://$host:$port/$dbCode?autoReconnect=true&user=$userName&password=$password&serverTimezone=UTC"
         )
     }
 }
