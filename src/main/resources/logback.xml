@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
+<configuration debug="false">
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
     <property name="LOGS_ABSOLUTE_PATH" value="./logs"/>
 
     <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -18,31 +19,8 @@
         </rollingPolicy>
     </appender>
 
-    <appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
-        <smtpHost>smtp.gmail.com</smtpHost>
-        <smtpPort>465</smtpPort>
-        <ssl>true</ssl>
-        <username>ttomas3026@gmail.com</username>
-        <password>p@]Zjqdb3Sg,:A8C</password>
-        <asynchronousSending>false</asynchronousSending>
-        <to>ttomas3026@gmail.com</to>
-        <!--<to>ANOTHER_EMAIL_DESTINATION</to> &lt;!&ndash; additional destinations are possible &ndash;&gt;-->
-        <from>ttomas3026@gmail.com</from>
-        <subject>TESTING: %logger{20} - %m</subject>
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%date %-5level %logger{35} - %message%n</pattern>
-        </layout>
-        <cyclicBufferTracker class="ch.qos.logback.core.spi.CyclicBufferTracker">
-            <!-- send just one log entry per email -->
-            <bufferSize>1</bufferSize>
-        </cyclicBufferTracker>
-    </appender>
+    <logger name="kr.djgis.shpbackup3.Execute" level="DEBUG">
+        <appender-ref ref="ROLLING"/>
+    </logger>
 
-        <logger name="kr.djgis.shpbackup3.Execute" level="DEBUG">
-            <appender-ref ref="ROLLING"/>
-        </logger>
-
-<!--    <logger name="kr.djgis.shpbackup3.Execute" level="DEBUG">-->
-<!--        <appender-ref ref="EMAIL"/>-->
-<!--    </logger>-->
 </configuration>

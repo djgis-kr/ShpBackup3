@@ -14,7 +14,8 @@ object Config {
     lateinit var pUserName: String
     lateinit var pKey: String
     lateinit var origin: String
-    // TODO: PRE, POST 쿼리 파일 대응
+    var isPostQuery: Boolean = false
+    var isPreQuery: Boolean = false
 
     private val property = initPropertyAt("./config.properties")
 
@@ -32,6 +33,8 @@ object Config {
             pUserName = property of "postgres_username"
             pKey = property of "postgres_key"
             origin = property of "geo_origin"
+            isPostQuery = property ask "use_post_query"
+            isPreQuery = property ask "use_pre_query"
         }
     }
 }

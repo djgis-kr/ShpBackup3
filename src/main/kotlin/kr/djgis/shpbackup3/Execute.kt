@@ -9,27 +9,27 @@ import org.geotools.data.shapefile.ShapefileDataStore
 import org.geotools.data.simple.SimpleFeatureCollection
 import org.opengis.feature.simple.SimpleFeature
 import org.postgresql.util.PSQLException
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import java.io.BufferedReader
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileReader
 import java.nio.charset.Charset
 import java.sql.ResultSet
 import java.util.*
 import kotlin.collections.ArrayList
 
+@Deprecated("Deprecated")
 object Execute {
 
-    // TODO: Apache CommonIO + 백업 주기 조절
-    // TODO: 모든 작업 정상 종료 후 후실행.txt 명령 추가
-    private var shpFiles: Array<File>? = null
-    private var postgresQueries = ArrayList<String>()
     private lateinit var tableList: Properties
-    val logger: Logger = LoggerFactory.getLogger(Execute.javaClass)
+    private var shpFiles: Array<File>? = null
 
     fun run() = try {
         setupProperties()
         setupStatement()
+    } catch (e: FileNotFoundException) {
+        println(e.message)
+        logger.info(e.message)
     } catch (e: Exception) {
         logger.error(e.message)
         e.printStackTrace()
@@ -39,38 +39,40 @@ object Execute {
     private fun setupProperties() {
         tableList = initPropertyAt("./table.properties")
         shpFiles = File(Config.filePath).listFiles { file ->
-            file.name.endsWith("shp") && file.length() > 100000L && (file.name at tableList != "")
-        }
-        shpFiles?.forEach {
-            println(it.name)
+            file.name.endsWith("shp") && file.length() > 20000L && (file.name at tableList != "")
         }
         if (shpFiles.isNullOrEmpty()) {
-            throw FileNotFoundException(".shp File Not Found")
+            throw FileNotFoundException("${Config.local} 백업 대상인 .shp 파일이 없음 (폴더위치: ${Config.filePath})")
         }
     }
 
     @Throws(Throwable::class)
     private fun setupStatement() {
-        val mConn = MysqlConnection.getConnection()
-        val pConn = PostgresConnection.getConnection()
+        val mConn = MysqlConnection().getConnection()
+        val pConn = PostgresConnection().getConnection()
         mConn.createStatement().use { mStmt ->
-            println("Mysql Connected")
             pConn.open(true) { postgres ->
+                println("${ANSI_GREEN}완료$ANSI_RESET")
                 postgres.createStatement().use { pStmt ->
+                    val shpFileList: ArrayList<String> = ArrayList()
                     shpFiles?.forEach shpFile@{ file ->
-                        println("처리시작: ${file.name}")
+                        shpFileList.add(file.name)
+                        print("${Config.local} 다음 백업 중: ${file.name.replace(".shp", "")}")
                         val tableCode = file.name at tableList
-                        pStmt.execute("TRUNCATE TABLE $tableCode")
-                        pStmt.execute("SELECT SETVAL('public.${tableCode}_id_seq',1,false)")
-                        val store = ShapefileDataStore(file.toURI().toURL())
                         val featureCollection: SimpleFeatureCollection
+                        val store = ShapefileDataStore(file.toURI().toURL())
                         try {
                             store.charset = Charset.forName("MS949")
                             featureCollection = store.featureSource.features
                         } finally {
                             store.dispose()
                         }
-                        if (featureCollection.isEmpty) return@shpFile
+                        if (featureCollection.isEmpty) {
+                            println("${Config.local} 비어있는 파일: ${file.name}")
+                            return@shpFile
+                        }
+                        pStmt.execute("TRUNCATE TABLE $tableCode")
+                        pStmt.execute("SELECT SETVAL('public.${tableCode}_id_seq',1,false)")
                         val features = arrayOfNulls<SimpleFeature>(featureCollection.size())
                         featureCollection.toArray(features)
                         features.forEach feature@{ feature ->
@@ -110,59 +112,35 @@ object Execute {
                                     pStmt.execute(insertQuery)
                                 } catch (e: PSQLException) {
                                     logger.error("($tableCode) ${e.message}")
-//                                    logger.debug(insertQuery)
+                                    println("...${ANSI_RED}실패$ANSI_RESET")
                                 } finally {
                                     postgres.commit()
                                 }
-//                                postgresQueries.add(insertQuery)
                             }
                         }
-//                        val length = postgresQueries.size
-//                        for (i in 0 until length) try {
-//                            pStmt.execute(postgresQueries[i])
-//                        } catch (e: PSQLException) {
-//                            logger.error("($tableCode) ${e.message}")
-//                            logger.debug(postgresQueries[i])
-//                            continue
-//                        } finally {
-//                            postgres.commit()
-//                        }
-                        println("처리함: ${file.name}")
+                        println("...${ANSI_GREEN}완료$ANSI_RESET")
+                    }
+                    if (Config.isPostQuery) {
+                        BufferedReader(FileReader("./postquery.txt")).use {
+                            var line: String? = it.readLine()
+                            while (line != null) {
+                                try {
+                                    line = it.readLine()?.trim()
+                                    println(line)
+                                    pStmt.execute(line)
+                                } catch (e: PSQLException) {
+                                    logger.error(e.message)
+                                    println(line)
+                                    return@open
+                                } finally {
+                                    postgres.commit()
+                                }
+                            }
+                        }
                     }
                 }
+                println("${Config.local} 작업 종료: ${Date()}")
             }
         }
-    }
-}
-
-private fun setupFeatures(file: File): Array<SimpleFeature>? {
-    with(ShapefileDataStore(file.toURI().toURL())) {
-        this.charset = Charset.forName("MS949")
-        val featureCollection = this.featureSource.features
-        this.dispose()
-        when {
-            featureCollection.isEmpty -> {
-                return@setupFeatures null
-            }
-            else -> {
-                val features = arrayOf<SimpleFeature>()
-                featureCollection.toArray(arrayOf<SimpleFeature>())
-                return@setupFeatures features
-            }
-        }
-    }
-}
-
-private fun setupFtrIdn(feature: SimpleFeature): String {
-    return when (feature.getProperty("관리번호")) {
-        null -> feature.getProperty("FTR_IDN").value.toString()
-        else -> feature.getProperty("관리번호").value.toString()
-    }
-}
-
-private fun setupCoordinate(feature: SimpleFeature): String {
-    return when ("MULTI" in "${feature.getAttribute(0)}") {
-        false -> "MULTI${feature.getAttribute(0)}"
-        true -> "${feature.getAttribute(0)}"
     }
 }

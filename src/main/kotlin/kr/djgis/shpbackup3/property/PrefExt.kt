@@ -1,6 +1,6 @@
 package kr.djgis.shpbackup3.property
 
-import kr.djgis.shpbackup3.Execute.logger
+import kr.djgis.shpbackup3.logger
 import java.io.BufferedReader
 import java.io.FileInputStream
 import java.io.InputStreamReader
@@ -22,3 +22,8 @@ fun initPropertyAt(filePath: String): Properties {
 infix fun Properties.of(key: String): String = this[key.toUpperCase()] as String
 
 infix fun String.at(properties: Properties): String = properties[this.replace(".shp", "")] as String
+
+infix fun Properties.ask(key: String): Boolean = when (this[key.toUpperCase()] as String) {
+    "TRUE", "true" -> true
+    else -> false
+}

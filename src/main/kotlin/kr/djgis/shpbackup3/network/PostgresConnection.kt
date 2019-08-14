@@ -4,7 +4,7 @@ import kr.djgis.shpbackup3.property.Config
 import java.sql.Connection
 import java.sql.DriverManager
 
-object PostgresConnection {
+class PostgresConnection {
 
     internal fun getConnection(
         dbCode: String = Config.dbCode,
