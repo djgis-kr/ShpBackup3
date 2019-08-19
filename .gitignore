@@ -144,7 +144,7 @@ config.properties
 table.properties
 prequery.txt
 postquery.txt
-shp/
+/SHP_Export/
 
 ### How to update git index with new .gitignore ###
 

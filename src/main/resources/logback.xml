@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="false">
+<configuration>
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
     <property name="LOGS_ABSOLUTE_PATH" value="./logs"/>
 
@@ -19,7 +19,7 @@
         </rollingPolicy>
     </appender>
 
-    <logger name="kr.djgis.shpbackup3.Execute" level="DEBUG">
+    <logger name="kr.djgis.shpbackup3.MainKt" level="DEBUG">
         <appender-ref ref="ROLLING"/>
     </logger>
 

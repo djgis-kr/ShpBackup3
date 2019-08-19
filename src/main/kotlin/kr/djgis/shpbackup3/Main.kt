@@ -1,8 +1,9 @@
 package kr.djgis.shpbackup3
 
 import kr.djgis.shpbackup3.property.Config
+import kr.djgis.shpbackup3.property.Status
 import kr.djgis.shpbackup3.property.at
-import kr.djgis.shpbackup3.property.initPropertyAt
+import kr.djgis.shpbackup3.property.initPropertyFile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -13,7 +14,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
-val logger: Logger = LoggerFactory.getLogger(Execute.javaClass)
+val logger: Logger = LoggerFactory.getLogger("kr.djgis.shpbackup3.MainKt")
 lateinit var shpFiles: Array<File>
 lateinit var tableList: Properties
 
@@ -28,10 +29,10 @@ fun main() {
 }
 
 private fun setupProperties() {
-    tableList = initPropertyAt("./table.properties")
-    shpFiles = File(Config.filePath).listFiles { file ->
-        file.name.endsWith("shp") && file.length() > 2000L && (file.name at tableList != "")
-    }!!
+    tableList = initPropertyFile("./table.properties")
+    shpFiles = File(Config.filePath).listFiles(fun(file: File): Boolean {
+        return file.name.endsWith("shp") && (file.nameWithoutExtension at tableList != "") && (file.length() > 100L)
+    })!!
     if (shpFiles.isNullOrEmpty()) {
         throw FileNotFoundException("${Config.local} 백업 대상인 .shp 파일이 없음 (폴더위치: ${Config.filePath})")
     }
@@ -51,7 +52,8 @@ private fun runExecutor() {
     } catch (e: InterruptedException) {
         executor.shutdownNow()
     } finally {
-        println("${Config.local} 백업 완료")
+        println("${Config.local} 백업 종료")
+        Status.tableCodeSet.clear()
         if (executor.isShutdown) {
 //            if (Config.isPostQuery) {
 //                println("${Config.local} 업데이트 시작")

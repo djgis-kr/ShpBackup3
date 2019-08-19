@@ -1,6 +1,6 @@
 package kr.djgis.shpbackup3
 
-import kr.djgis.shpbackup3.network.PostgresConnection
+import kr.djgis.shpbackup3.network.PostgresConnectionPool
 import kr.djgis.shpbackup3.property.Config
 import org.opengis.feature.simple.SimpleFeature
 import java.io.BufferedReader
@@ -49,7 +49,7 @@ fun setupCoordinate(feature: SimpleFeature): String {
 }
 
 fun executePostQuery() {
-    val pConn1 = PostgresConnection().getConnection()
+    val pConn1 = PostgresConnectionPool.getConnection()
     pConn1.open {
         try {
             it.createStatement().execute("VACUUM verbose analyze")
@@ -57,7 +57,7 @@ fun executePostQuery() {
             logger.error(e.message)
         }
     }.also {
-        val pConn2 = PostgresConnection().getConnection()
+        val pConn2 = PostgresConnectionPool.getConnection()
         pConn2.open(true) { postgres ->
             postgres.createStatement().use { pStmt ->
                 BufferedReader(FileReader("./postquery.txt")).use {

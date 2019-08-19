@@ -8,7 +8,7 @@ import java.util.*
 
 private val properties = Properties()
 
-fun initPropertyAt(filePath: String): Properties {
+fun initPropertyFile(filePath: String): Properties {
     try {
         FileInputStream(filePath).use {
             properties.load(BufferedReader(InputStreamReader(it, "MS949")))
@@ -21,7 +21,7 @@ fun initPropertyAt(filePath: String): Properties {
 
 infix fun Properties.of(key: String): String = this[key.toUpperCase()] as String
 
-infix fun String.at(properties: Properties): String = properties[this.replace(".shp", "")] as String
+infix fun String.at(properties: Properties): String = properties[this] as String
 
 infix fun Properties.ask(key: String): Boolean = when (this[key.toUpperCase()] as String) {
     "TRUE", "true" -> true

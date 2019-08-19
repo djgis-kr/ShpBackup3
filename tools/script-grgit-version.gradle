@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
+        classpath 'org.ajoberstar.grgit:grgit-core:3.1.1'
     }
 }
 
@@ -11,7 +11,7 @@ import org.ajoberstar.grgit.Grgit
 
 ext {
     git = Grgit.open(currentDir: projectDir)
-    gitVersionName = git.describe(tags:true)
+    gitVersionName = git.describe(tags: true)
     gitVersionCode = git.tag.list().size()
 }
 

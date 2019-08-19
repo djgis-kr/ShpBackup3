@@ -17,7 +17,7 @@ object Config {
     var isPostQuery: Boolean = false
     var isPreQuery: Boolean = false
 
-    private val property = initPropertyAt("./config.properties")
+    private val property = initPropertyFile("./config.properties")
 
     init {
         this.apply {
