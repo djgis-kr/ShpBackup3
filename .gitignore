@@ -153,3 +153,4 @@ postquery.txt
 # git commit -am "Remove ignored files"
 
 # End of https://www.gitignore.io/api/java,gradle,kotlin,intellij
+/Run.bat

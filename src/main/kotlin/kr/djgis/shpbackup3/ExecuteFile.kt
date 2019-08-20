@@ -10,7 +10,6 @@ import org.geotools.data.simple.SimpleFeatureCollection
 import org.opengis.feature.simple.SimpleFeature
 import org.postgresql.util.PSQLException
 import java.io.File
-import java.io.IOException
 import java.nio.charset.Charset
 import java.sql.ResultSet
 import java.sql.SQLSyntaxErrorException
@@ -20,7 +19,7 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
 
     private var errorCount = 0
 
-    @Throws(Throwable::class, IOException::class)
+    @Throws(Throwable::class)
     override fun call(): Nothing? {
         val mConn = MysqlConnectionPool.getConnection()
         val pConn = PostgresConnectionPool.getConnection()
@@ -34,15 +33,17 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                         store.charset = Charset.forName("MS949")
                         featureCollection = store.featureSource.features
                     } finally {
-                        store.featureSource.unLockFeatures()
+                        store.featureSource?.unLockFeatures()
                         store.dispose()
                     }
                     val features = arrayOfNulls<SimpleFeature>(featureCollection.size())
+                    featureCollection.toArray(features)
+                    val metaData = mStmt.executeQuery("SELECT * FROM $tableCode LIMIT 0").metaData
+                    val columnCount = metaData.columnCount
                     if (Status.tableCodeSet.add(tableCode)) {
                         pStmt.execute("TRUNCATE TABLE $tableCode")
                         pStmt.execute("SELECT SETVAL('public.${tableCode}_id_seq',1,false)")
                     }
-                    featureCollection.toArray(features)
                     features.forEach feature@{ feature ->
                         val ftrIdn = setupFtrIdn(feature!!)
                         val coordinate = setupCoordinate(feature)
@@ -51,45 +52,39 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                             resultSet = mStmt.executeQuery("SELECT * FROM $tableCode WHERE ftr_idn=$ftrIdn")
                         } catch (e: SQLSyntaxErrorException) {
                             errorCount += 1
-                            logger.info("SELECT * FROM $tableCode WHERE ftr_idn=$ftrIdn")
                             return@feature
                         }
-                        resultSet.use {
-                            val metaData = it.metaData
-                            val columnCount = metaData.columnCount
 
-                            val columnNames = arrayOfNulls<String>(columnCount + 1)
-                            columnNames[0] = "\"geom\""
-                            for (i in 1..columnCount) {
-                                columnNames[i] = "\"${metaData.getColumnName(i).toLowerCase()}\""
-                            }
-                            val columnList = columnNames.joinToString(",").trim()
+                        val columnNames = arrayOfNulls<String>(columnCount + 1)
+                        columnNames[0] = "\"geom\""
+                        for (i in 1..columnCount) {
+                            columnNames[i] = "\"${metaData.getColumnName(i).toLowerCase()}\""
+                        }
+                        val columnList = columnNames.joinToString(",").trim()
 
-                            val columnValues = arrayOfNulls<String>(columnCount + 1)
-                            while (resultSet.next()) {
-                                columnValues[0] = "st_geomfromtext('$coordinate', ${Config.origin})"
-                                for (j in 1..columnCount) {
-                                    val field = ValueField(metaData.getColumnType(j), it.getString(j))
-                                    columnValues[j] = field.value
-                                }
-                            }
-                            val valueList = columnValues.joinToString(",").trim()
+                        val columnValues = arrayOfNulls<String>(columnCount + 1)
+                        columnValues[0] = "st_geomfromtext('$coordinate', ${Config.origin})"
+                        while (resultSet.next()) for (j in 1..columnCount) {
+                            val field = ValueField(metaData.getColumnType(j), resultSet.getString(j))
+                            columnValues[j] = field.value
+                        }
+                        val valueList = columnValues.joinToString(",").trim()
+                        resultSet.close()
 
-                            val insertQuery = "INSERT INTO $tableCode ($columnList) VALUES ($valueList)"
-                            if (file.nameWithoutExtension == "마을상수구역") insertQuery.replace("wsg_cde", "wsb_cde")
-                            try {
-                                pStmt.execute(insertQuery)
-                            } catch (e: PSQLException) {
-                                errorCount += 1
-                                logger.error("(${file.nameWithoutExtension}, $tableCode($ftrIdn) ${e.message}")
-                            } finally {
-                                postgres.commit()
-                            }
+                        val insertQuery = "INSERT INTO $tableCode ($columnList) VALUES ($valueList)"
+                        if (file.nameWithoutExtension == "마을상수구역") insertQuery.replace("wsg_cde", "wsb_cde")
+                        try {
+                            pStmt.execute(insertQuery)
+                        } catch (e: PSQLException) {
+                            errorCount += 1
+                            logger.error("(${file.nameWithoutExtension}, $tableCode($ftrIdn) ${e.message}")
+                        } finally {
+                            postgres.commit()
                         }
                     }
                     when (errorCount) {
-                        0 -> println("${Config.local} 백업 ${ANSI_GREEN}완료$ANSI_RESET: ${file.nameWithoutExtension}")
-                        else -> println("${Config.local} 백업 ${ANSI_RED}에러: ${file.nameWithoutExtension}($errorCount)$ANSI_RESET")
+                        0 -> println("${Config.local} 백업 완료: ${file.nameWithoutExtension}")
+                        else -> println("${Config.local} 백업 에러: ${file.nameWithoutExtension}($errorCount)")
                     }
                 }
             }

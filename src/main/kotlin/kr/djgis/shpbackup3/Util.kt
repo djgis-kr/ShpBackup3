@@ -10,14 +10,6 @@ import java.sql.Types
 import java.text.ParseException
 import java.text.SimpleDateFormat
 
-const val ANSI_RESET = "\u001B[0m"
-const val ANSI_RED = "\u001B[31m"
-const val ANSI_GREEN = "\u001B[32m"
-const val ANSI_YELLOW = "\u001B[33m"
-const val ANSI_BLUE = "\u001B[34m"
-const val ANSI_PURPLE = "\u001B[35m"
-const val ANSI_CYAN = "\u001B[36m"
-
 @Throws(Throwable::class)
 inline fun <R> Connection.open(rollback: Boolean = false, block: (Connection) -> R): R {
     try {
@@ -43,8 +35,8 @@ fun setupFtrIdn(feature: SimpleFeature): String {
 
 fun setupCoordinate(feature: SimpleFeature): String {
     return when ("MULTI" in "${feature.getAttribute(0)}") {
-        false -> "MULTI${feature.getAttribute(0)}"
         true -> "${feature.getAttribute(0)}"
+        false -> "MULTI${feature.getAttribute(0)}"
     }
 }
 
