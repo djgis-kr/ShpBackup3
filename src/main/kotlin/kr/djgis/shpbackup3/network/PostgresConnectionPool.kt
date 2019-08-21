@@ -15,8 +15,9 @@ object PostgresConnectionPool {
             url = "jdbc:postgresql://${Config.pHost}:${Config.pPort}/${Config.dbCode}"
             username = Config.pUserName
             password = Config.pKey
-            maxIdle = -1
-            maxTotal = -1
+            maxIdle = Config.maxIdle
+            maxTotal = Config.maxTotal
+            minEvictableIdleTimeMillis = -1
         }
     }
 

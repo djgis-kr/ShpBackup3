@@ -15,8 +15,9 @@ object MysqlConnectionPool {
             url = "jdbc:mysql://${Config.mHost}:${Config.mPort}/${Config.dbCode}?autoReconnect=true&serverTimezone=UTC"
             username = Config.mUserName
             password = Config.mKey
-            maxIdle = -1
-            maxTotal = -1
+            maxIdle = Config.maxIdle
+            maxTotal = Config.maxTotal
+            minEvictableIdleTimeMillis = -1
         }
     }
 

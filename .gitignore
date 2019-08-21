@@ -140,11 +140,8 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 
-config.properties
-table.properties
-prequery.txt
-postquery.txt
 /SHP_Export/
+/Run.bat
 
 ### How to update git index with new .gitignore ###
 
@@ -153,4 +150,3 @@ postquery.txt
 # git commit -am "Remove ignored files"
 
 # End of https://www.gitignore.io/api/java,gradle,kotlin,intellij
-/Run.bat

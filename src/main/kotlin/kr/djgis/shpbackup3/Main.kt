@@ -34,7 +34,7 @@ private fun setupProperties() {
         return file.name.endsWith("shp") && (file.nameWithoutExtension at tableList != "") && (file.length() > 100L)
     })!!
     if (shpFiles.isNullOrEmpty()) {
-        throw FileNotFoundException("${Config.local} 백업 대상인 .shp 파일이 없음 (폴더위치: ${Config.filePath})")
+        throw FileNotFoundException("${Config.local} 백업 대상 .shp 파일이 없음 (지정 폴더위치: ${Config.filePath})")
     }
 }
 

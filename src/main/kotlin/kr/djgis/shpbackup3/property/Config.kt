@@ -16,6 +16,8 @@ object Config {
     lateinit var origin: String
     var isPostQuery: Boolean = false
     var isPreQuery: Boolean = false
+    var maxTotal: Int = -1
+    var maxIdle: Int = -1
 
     private val property = initPropertyFile("./config.properties")
 
@@ -35,6 +37,8 @@ object Config {
             origin = property of "geo_origin"
             isPostQuery = property ask "use_post_query"
             isPreQuery = property ask "use_pre_query"
+            maxTotal = property numberOf "max_total"
+            maxIdle = property numberOf "max_idle"
         }
     }
 }

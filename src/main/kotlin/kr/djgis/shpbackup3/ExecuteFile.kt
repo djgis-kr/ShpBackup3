@@ -40,18 +40,30 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                     featureCollection.toArray(features)
                     val metaData = mStmt.executeQuery("SELECT * FROM $tableCode LIMIT 0").metaData
                     val columnCount = metaData.columnCount
+
                     if (Status.tableCodeSet.add(tableCode)) {
                         pStmt.execute("TRUNCATE TABLE $tableCode")
                         pStmt.execute("SELECT SETVAL('public.${tableCode}_id_seq',1,false)")
                     }
+
                     features.forEach feature@{ feature ->
                         val ftrIdn = setupFtrIdn(feature!!)
-                        val coordinate = setupCoordinate(feature)
                         val resultSet: ResultSet
                         try {
-                            resultSet = mStmt.executeQuery("SELECT * FROM $tableCode WHERE ftr_idn=$ftrIdn")
+                            val selectQuery = setupQuery(
+                                tableCode = tableCode,
+                                ftrIdn = ftrIdn,
+                                fileName = file.nameWithoutExtension
+                            )
+                            resultSet = mStmt.executeQuery(selectQuery)
+                            if (!resultSet.isBeforeFirst) {
+                                errorCount += 1
+                                logger.error("${file.nameWithoutExtension} $tableCode ($ftrIdn) MySQL 데이터베이스에서 데이터를 찾을 수 없습니다.")
+                                return@feature
+                            }
                         } catch (e: SQLSyntaxErrorException) {
                             errorCount += 1
+                            logger.error("${file.nameWithoutExtension} $tableCode ($ftrIdn) ${e.message}")
                             return@feature
                         }
 
@@ -63,6 +75,7 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                         val columnList = columnNames.joinToString(",").trim()
 
                         val columnValues = arrayOfNulls<String>(columnCount + 1)
+                        val coordinate = setupCoordinate(feature)
                         columnValues[0] = "st_geomfromtext('$coordinate', ${Config.origin})"
                         while (resultSet.next()) for (j in 1..columnCount) {
                             val field = ValueField(metaData.getColumnType(j), resultSet.getString(j))
@@ -77,14 +90,18 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                             pStmt.execute(insertQuery)
                         } catch (e: PSQLException) {
                             errorCount += 1
-                            logger.error("(${file.nameWithoutExtension}, $tableCode($ftrIdn) ${e.message}")
+                            logger.error("${file.nameWithoutExtension} $tableCode ($ftrIdn) ${e.message}")
                         } finally {
                             postgres.commit()
                         }
                     }
                     when (errorCount) {
-                        0 -> println("${Config.local} 백업 완료: ${file.nameWithoutExtension}")
-                        else -> println("${Config.local} 백업 에러: ${file.nameWithoutExtension}($errorCount)")
+                        0 -> println("${Config.local} 정상 완료: ${file.nameWithoutExtension}")
+                        in 1 until features.size -> println("${Config.local} 일부 에러: ${file.nameWithoutExtension}($errorCount)")
+                        else -> {
+                            postgres.rollback()
+                            println("${Config.local} 전체 에러: ${file.nameWithoutExtension}($errorCount)...백업 취소 및 롤백 실행")
+                        }
                     }
                 }
             }

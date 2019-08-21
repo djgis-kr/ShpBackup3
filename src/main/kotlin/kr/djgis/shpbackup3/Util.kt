@@ -40,6 +40,19 @@ fun setupCoordinate(feature: SimpleFeature): String {
     }
 }
 
+fun setupQuery(tableCode: String, ftrIdn: String, fileName: String): String {
+    return when (tableCode) {
+        "wtl_pipe_lm", "wtl_sply_ls", "wtl_manh_ps",
+        "wtl_stpi_ps", "wtl_valv_ps", "wtl_fire_ps",
+        "wtl_spcnt_as", "wtl_scvst_ps" -> {
+            "SELECT * FROM $tableCode WHERE ftr_idn=$ftrIdn AND LAYER='$fileName'"
+        }
+        else -> {
+            "SELECT * FROM $tableCode WHERE ftr_idn=$ftrIdn"
+        }
+    }
+}
+
 fun executePostQuery() {
     val pConn1 = PostgresConnectionPool.getConnection()
     pConn1.open {

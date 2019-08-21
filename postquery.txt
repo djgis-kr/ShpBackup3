@@ -1,0 +1,10 @@
+DELETE FROM public.wtl_pipe_lm_topology;
+INSERT INTO public.wtl_pipe_lm_topology (id, the_geom) SELECT id, ST_LineMerge(geom) FROM public.wtl_pipe_lm;
+SELECT pgr_createTopology('public.wtl_pipe_lm_topology', 0.001);
+SELECT pgr_analyzegraph('public.wtl_pipe_lm_topology', 0.001);
+SELECT pgr_nodeNetwork('public.wtl_pipe_lm_topology', 0.001);
+alter table public.wtl_pipe_lm_topology drop column if exists old_id;
+alter table public.wtl_pipe_lm_topology add column old_id integer;
+insert into public.wtl_pipe_lm_topology (old_id,dir,cost,reverse_cost,the_geom) (with segmented as (select old_id,count(*) as i from public.wtl_pipe_lm_topology_noded group by old_id) select segments.old_id,dir,cost,reverse_cost,segments.the_geom from public.wtl_pipe_lm_topology as edges join public.wtl_pipe_lm_topology_noded as segments on (edges.id = segments.old_id) where edges.id in (select old_id from segmented where i>1) );
+SELECT pgr_createTopology('public.wtl_pipe_lm_topology', 0.001);
+SELECT pgr_analyzegraph('public.wtl_pipe_lm_topology', 0.001,rows_where:='id not in (select old_id from public.wtl_pipe_lm_topology where old_id is not null)');
