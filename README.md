@@ -1,6 +1,6 @@
 # ShpBackup v3
 
-### CHANGELOG
+### CHANGELOG 1.1.0
 Release Date: 2019-08-21
 -	config.properties : 백업 전/후로 PRE/POST Query 사용 여부 설정 가능(prequery.txt, postquery.txt)
 -	table.properties : 테이블명 설정 가능. 값이 없으면 백업에서 제외됨
