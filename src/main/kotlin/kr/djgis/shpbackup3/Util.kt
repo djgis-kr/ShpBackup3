@@ -1,13 +1,17 @@
 package kr.djgis.shpbackup3
 
 import java.io.BufferedReader
+import java.io.File
 import java.io.FileReader
+import java.nio.charset.Charset
 import java.sql.Connection
 import java.sql.Types
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import kr.djgis.shpbackup3.network.PostgresConnectionPool
 import kr.djgis.shpbackup3.property.Config
+import org.geotools.data.shapefile.ShapefileDataStore
+import org.geotools.data.simple.SimpleFeatureCollection
 import org.opengis.feature.simple.SimpleFeature
 
 @Throws(Throwable::class)
@@ -26,6 +30,19 @@ inline fun <R> Connection.open(rollback: Boolean = false, block: (Connection) ->
     }
 }
 
+fun getFeatureCollection(file: File): SimpleFeatureCollection {
+    val featureCollection: SimpleFeatureCollection
+    val store = ShapefileDataStore(file.toURI().toURL())
+    try {
+        store.charset = Charset.forName("MS949")
+        featureCollection = store.featureSource.features
+    } finally {
+        store.featureSource?.unLockFeatures()
+        store.dispose()
+    }
+    return featureCollection
+}
+
 fun setupFtrIdn(feature: SimpleFeature): String {
     return when (feature.getProperty("관리번호")) {
         null -> feature.getProperty("FTR_IDN").value.toString()
@@ -40,7 +57,7 @@ fun setupCoordinate(feature: SimpleFeature): String {
     }
 }
 
-fun setupQuery(tableCode: String, ftrIdn: String, fileName: String): String {
+fun setupQuery(fileName: String, tableCode: String, ftrIdn: String): String {
     return when (tableCode) {
         "wtl_pipe_lm", "wtl_sply_ls", "wtl_manh_ps",
         "wtl_stpi_ps", "wtl_valv_ps", "wtl_fire_ps",
@@ -49,6 +66,23 @@ fun setupQuery(tableCode: String, ftrIdn: String, fileName: String): String {
         }
         else -> {
             "SELECT * FROM $tableCode WHERE ftr_idn=$ftrIdn"
+        }
+    }
+}
+
+fun Connection.reportResults(fileName: String, tableCode: String, rowCount: Int, errorCount: Int) {
+    when (errorCount) {
+        0 -> {
+            println("${Config.local} 정상 완료: $fileName")
+            logger.info("$fileName $tableCode ${rowCount - errorCount} rows")
+        }
+        in 1 until rowCount -> {
+            println("${Config.local} 일부 에러: $fileName($errorCount)")
+            logger.info("$fileName $tableCode ${rowCount - errorCount} rows & $errorCount error(s).")
+        }
+        else -> {
+            this.rollback()
+            println("${Config.local} 전체 에러: $fileName($errorCount)...백업 취소 및 롤백 실행")
         }
     }
 }
@@ -112,9 +146,6 @@ class ValueField(private val columnType: Any?, private val columnValue: String?)
                     Types.CHAR, Types.VARCHAR, Types.TIME -> {
                         dataFormat = "'%s'"
                     }
-//                    Attribute -> {
-//
-//                    }
                     else -> dataFormat = "'%s'"
                 }
                 String.format(dataFormat, dataValue)
