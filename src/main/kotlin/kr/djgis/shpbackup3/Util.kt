@@ -88,7 +88,7 @@ fun executePostQuery() {
     }
 }
 
-class ValueField(private val columnType: Int, private val columnValue: String?) {
+class ValueField(private val columnType: Any?, private val columnValue: String?) {
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd")
 
@@ -112,6 +112,9 @@ class ValueField(private val columnType: Int, private val columnValue: String?) 
                     Types.CHAR, Types.VARCHAR, Types.TIME -> {
                         dataFormat = "'%s'"
                     }
+//                    Attribute -> {
+//
+//                    }
                     else -> dataFormat = "'%s'"
                 }
                 String.format(dataFormat, dataValue)

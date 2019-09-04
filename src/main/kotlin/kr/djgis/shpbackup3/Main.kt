@@ -31,9 +31,9 @@ fun main() {
 
 private fun setupProperties() {
     tableList = initPropertyFile("./table.properties")
-    shpFiles = File(Config.filePath).listFiles(fun(file: File): Boolean {
-        return file.name.endsWith("shp") && (file.nameWithoutExtension at tableList != "") && (file.length() > 100L)
-    })!!
+    shpFiles = File(Config.filePath).listFiles { file ->
+        file.name.endsWith("shp") && (file.nameWithoutExtension at tableList != "") && (file.length() > 100L)
+    }!!
     if (shpFiles.isNullOrEmpty()) {
         throw FileNotFoundException("${Config.local} 백업 대상 .shp 파일이 없음 (지정 폴더위치: ${Config.filePath})")
     }
@@ -54,6 +54,8 @@ private fun runExecutor() {
         executor.shutdownNow()
     } finally {
         println("${Config.local} 백업 종료")
+        logger.info("——————END——————\n")
+        logger.error("——————END——————\n")
         Status.tableCodeSet.clear()
         if (executor.isShutdown) {
 //            if (Config.isPostQuery) {

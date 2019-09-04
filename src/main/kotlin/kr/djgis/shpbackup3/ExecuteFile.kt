@@ -18,15 +18,19 @@ import org.postgresql.util.PSQLException
 class ExecuteFile(private val file: File) : Callable<Nothing> {
 
     private var errorCount = 0
+    private val tableCode = file.nameWithoutExtension at tableList
 
     @Throws(Throwable::class)
     override fun call(): Nothing? {
+        if (tableCode == "wtl_cap_ps" || tableCode == "wtl_taper_ps") {
+            ExecuteShp(file).run()
+            return null
+        }
         val mConn = MysqlConnectionPool.getConnection()
         val pConn = PostgresConnectionPool.getConnection()
         mConn.createStatement().use { mStmt ->
             pConn.open(true) { postgres ->
                 postgres.createStatement().use { pStmt ->
-                    val tableCode = file.nameWithoutExtension at tableList
                     val featureCollection: SimpleFeatureCollection
                     val store = ShapefileDataStore(file.toURI().toURL())
                     try {
@@ -40,12 +44,10 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                     featureCollection.toArray(features)
                     val metaData = mStmt.executeQuery("SELECT * FROM $tableCode LIMIT 0").metaData
                     val columnCount = metaData.columnCount
-
                     if (Status.tableCodeSet.add(tableCode)) {
                         pStmt.execute("TRUNCATE TABLE $tableCode")
                         pStmt.execute("SELECT SETVAL('public.${tableCode}_id_seq',1,false)")
                     }
-
                     features.forEach feature@{ feature ->
                         val ftrIdn = setupFtrIdn(feature!!)
                         val resultSet: ResultSet
@@ -96,8 +98,14 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                         }
                     }
                     when (errorCount) {
-                        0 -> println("${Config.local} 정상 완료: ${file.nameWithoutExtension}")
-                        in 1 until features.size -> println("${Config.local} 일부 에러: ${file.nameWithoutExtension}($errorCount)")
+                        0 -> {
+                            println("${Config.local} 정상 완료: ${file.nameWithoutExtension}")
+                            logger.info("${file.nameWithoutExtension} $tableCode ${features.size - errorCount} rows")
+                        }
+                        in 1 until features.size -> {
+                            println("${Config.local} 일부 에러: ${file.nameWithoutExtension}($errorCount)")
+                            logger.info("${file.nameWithoutExtension} $tableCode ${features.size - errorCount} rows & $errorCount error(s).")
+                        }
                         else -> {
                             postgres.rollback()
                             println("${Config.local} 전체 에러: ${file.nameWithoutExtension}($errorCount)...백업 취소 및 롤백 실행")
