@@ -35,7 +35,7 @@ class ExecuteShp(private val file: File) {
                     pStmt.execute("SELECT SETVAL('public.${tableCode}_id_seq',1,false)")
                 }
                 features.forEach feature@{ feature ->
-                    val columnValues = arrayOfNulls<String>(columnCount + 1)
+                    val columnValues = arrayOfNulls<String>(columnCount)
                     val coordinate = setupCoordinate(feature!!)
                     columnValues[0] = "st_geomfromtext('$coordinate', ${Config.origin})"
                     for (j in 1 until columnCount) {
