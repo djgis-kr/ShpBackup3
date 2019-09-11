@@ -140,13 +140,15 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 
-/SHP_Export/
+/logs/
+/shp/
 /Run.bat
 
 ### How to update git index with new .gitignore ###
 
-# git rm -r --cached . 
+# git rm -r --cached .
 # git add .
 # git commit -am "Remove ignored files"
 
 # End of https://www.gitignore.io/api/java,gradle,kotlin,intellij
+

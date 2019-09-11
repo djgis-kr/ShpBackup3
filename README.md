@@ -1,5 +1,11 @@
 # ShpBackup v3
 
+### CHANGELOG 1.2.1
+Release Date: 2019-09-11
+- table.properties: 역지변 추가
+- '상수맨홀'의 'LAYER' 컬럼 검사 삭제
+- config.properties git 에 추가
+
 ### CHANGELOG 1.2.0
 Release Date: 2019-09-05
 - MySql 데이터를 가지지 않고(=MySql 접속 없음) shp 에서 geom 정보만을 읽어 삽입하는 클래스 추가(상수관말, 편락관 등)

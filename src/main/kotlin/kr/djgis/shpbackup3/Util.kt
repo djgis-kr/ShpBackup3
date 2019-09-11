@@ -59,9 +59,8 @@ fun setupCoordinate(feature: SimpleFeature): String {
 
 fun setupQuery(fileName: String, tableCode: String, ftrIdn: String): String {
     return when (tableCode) {
-        "wtl_pipe_lm", "wtl_sply_ls", "wtl_manh_ps",
-        "wtl_stpi_ps", "wtl_valv_ps", "wtl_fire_ps",
-        "wtl_spcnt_as", "wtl_scvst_ps" -> {
+        "wtl_pipe_lm", "wtl_sply_ls", "wtl_stpi_ps",
+        "wtl_valv_ps", "wtl_fire_ps", "wtl_spcnt_as", "wtl_scvst_ps" -> {
             "SELECT * FROM $tableCode WHERE ftr_idn=$ftrIdn AND LAYER='$fileName'"
         }
         else -> {
