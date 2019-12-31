@@ -11,7 +11,7 @@ private val properties = Properties()
 fun initPropertyFile(filePath: String): Properties {
     try {
         FileInputStream(filePath).use {
-            properties.load(BufferedReader(InputStreamReader(it, "MS949")))
+            properties.load(BufferedReader(InputStreamReader(it, "UTF-8")))
         }
     } catch (e: Throwable) {
         logger.error(e.message)

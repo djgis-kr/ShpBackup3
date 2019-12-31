@@ -20,7 +20,7 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
 
     @Throws(Throwable::class)
     override fun call(): Nothing? {
-        if (tableCode == "wtl_cap_ps" || tableCode == "wtl_taper_ps") {
+        if (tableCode == "wtl_cap_ps" || tableCode == "wtl_taper_ps" || tableCode == "wtl_userlabel_ps") {
             ExecuteShp(file).run()
             return null
         }
