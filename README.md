@@ -1,5 +1,10 @@
 # ShpBackup v3
 
+### CHANGELOG 1.3.1
+Release Date: 2020-01-31
+- .properties 파일의 인코딩 UTF-8로 변경
+- jar 빌드 파일명 GSS_ConvertSHP 로 변경
+
 ### CHANGELOG 1.2.1
 Release Date: 2019-09-11
 - table.properties: 역지변 추가
