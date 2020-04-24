@@ -1,9 +1,5 @@
 package kr.djgis.shpbackup3
 
-import java.io.File
-import java.sql.ResultSet
-import java.sql.SQLSyntaxErrorException
-import java.util.concurrent.Callable
 import kr.djgis.shpbackup3.network.MysqlConnectionPool
 import kr.djgis.shpbackup3.network.PostgresConnectionPool
 import kr.djgis.shpbackup3.property.Config
@@ -11,16 +7,33 @@ import kr.djgis.shpbackup3.property.Status
 import kr.djgis.shpbackup3.property.at
 import org.opengis.feature.simple.SimpleFeature
 import org.postgresql.util.PSQLException
+import java.io.File
+import java.sql.ResultSet
+import java.sql.SQLSyntaxErrorException
+import java.util.concurrent.Callable
 
 class ExecuteFile(private val file: File) : Callable<Nothing> {
 
     private var errorCount = 0
     private val fileName = file.nameWithoutExtension
     private val tableCode = fileName at tableList
+    private val shpOnlyTable =
+        setOf(
+            "wtl_cap_ps", // 상수관말
+            "wtl_taper_ps", // 편락관
+            "wtl_userlabel_ps", // 사용자주기 (임의 테이블명)
+            "elevation_point", // 표고점
+            "road", // 도로
+            "road_section", // 도로구역
+            "road_test",
+            "swl_hmpipe_ls", // 가정내오수관
+            "swl_pipe_as", // 면형관
+            "swl_cap_ps" // 하수관말
+        )
 
     @Throws(Throwable::class)
     override fun call(): Nothing? {
-        if (tableCode == "wtl_cap_ps" || tableCode == "wtl_taper_ps" || tableCode == "wtl_userlabel_ps") {
+        if (shpOnlyTable.contains(tableCode)) {
             ExecuteShp(file).run()
             return null
         }
@@ -40,9 +53,10 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                         columnNames[i] = "\"${metaData.getColumnName(i)}\""
                     }
                     val columnList = columnNames.joinToString(",").toLowerCase().trim()
+//                    val columnList = columnNames.joinToString(",").toUpperCase().trim()
                     if (Status.tableCodeSet.add(tableCode)) {
                         pStmt.execute("TRUNCATE TABLE $tableCode")
-                        pStmt.execute("SELECT SETVAL('public.${tableCode}_id_seq',1,false)")
+//                        pStmt.execute("SELECT SETVAL('public.${tableCode}_id_seq',1,false)")
                     }
                     features.forEach feature@{ feature ->
                         val ftrIdn = setupFtrIdn(feature!!)

@@ -32,7 +32,7 @@ class ExecuteShp(private val file: File) {
                 val columnList = columnNames.joinToString(",").toLowerCase().trim()
                 if (Status.tableCodeSet.add(tableCode)) {
                     pStmt.execute("TRUNCATE TABLE $tableCode")
-                    pStmt.execute("SELECT SETVAL('public.${tableCode}_id_seq',1,false)")
+//                    pStmt.execute("SELECT SETVAL('public.${tableCode}_id_seq',1,false)")
                 }
                 features.forEach feature@{ feature ->
                     val columnValues = arrayOfNulls<String>(columnCount)

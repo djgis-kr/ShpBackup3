@@ -1,5 +1,10 @@
 # ShpBackup v3
 
+### CHANGELOG 1.3.2
+Release Date: 2020-04-24
+- table.properties 보완 (하수 시설 추가)
+- PostgreSQL 테이블 컬럼명 소문자 사용
+
 ### CHANGELOG 1.3.1
 Release Date: 2020-01-31
 - .properties 파일의 인코딩 UTF-8로 변경
