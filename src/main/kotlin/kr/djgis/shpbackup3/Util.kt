@@ -1,5 +1,10 @@
 package kr.djgis.shpbackup3
 
+import kr.djgis.shpbackup3.network.PostgresConnectionPool
+import kr.djgis.shpbackup3.property.Config
+import org.geotools.data.shapefile.ShapefileDataStore
+import org.geotools.data.simple.SimpleFeatureCollection
+import org.opengis.feature.simple.SimpleFeature
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -8,11 +13,6 @@ import java.sql.Connection
 import java.sql.Types
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import kr.djgis.shpbackup3.network.PostgresConnectionPool
-import kr.djgis.shpbackup3.property.Config
-import org.geotools.data.shapefile.ShapefileDataStore
-import org.geotools.data.simple.SimpleFeatureCollection
-import org.opengis.feature.simple.SimpleFeature
 
 @Throws(Throwable::class)
 inline fun <R> Connection.open(rollback: Boolean = false, block: (Connection) -> R): R {
@@ -130,27 +130,36 @@ class ValueField(private val columnType: Any?, private val columnValue: String?)
      */
     val value: String
         @Throws(ParseException::class)
-        get() = when {
-            columnValue != null -> {
-                val dataFormat: String
-                var dataValue: String = columnValue
-                when (columnType) {
-                    Types.TIMESTAMP, Types.DATE -> {
-                        dataFormat = "'%s'"
-                        dataValue = dateFormat.format(dateFormat.parse(columnValue))
+        get() {
+            return when {
+                columnValue != null -> {
+                    val dataFormat: String
+                    var dataValue: String = columnValue
+                    when (columnType) {
+                        Types.TIMESTAMP, Types.DATE -> {
+                            dataFormat = "'%s'"
+                            dataValue = dateFormat.format(dateFormat.parse(columnValue))
+                        }
+                        Types.INTEGER, Types.DECIMAL, Types.DOUBLE -> {
+                            dataFormat = "%s"
+                        }
+                        Types.CHAR, Types.VARCHAR, Types.TIME -> {
+                            dataFormat = "'%s'"
+                        }
+                        "\"EDDATE\"" -> {
+                            dataFormat = if (columnValue == "") {
+                                return "null"
+                            } else "'%s'"
+                        }
+                        else -> {
+                            dataFormat = "'%s'"
+                        }
                     }
-                    Types.INTEGER, Types.DECIMAL, Types.DOUBLE -> {
-                        dataFormat = "%s"
-                    }
-                    Types.CHAR, Types.VARCHAR, Types.TIME -> {
-                        dataFormat = "'%s'"
-                    }
-                    else -> dataFormat = "'%s'"
+                    return String.format(dataFormat, dataValue)
                 }
-                String.format(dataFormat, dataValue)
-            }
-            else -> {
-                "null"
+                else -> {
+                    "null"
+                }
             }
         }
 }

@@ -1,12 +1,12 @@
 package kr.djgis.shpbackup3
 
-import java.io.File
 import kr.djgis.shpbackup3.network.PostgresConnectionPool
 import kr.djgis.shpbackup3.property.Config
 import kr.djgis.shpbackup3.property.Status
 import kr.djgis.shpbackup3.property.at
 import org.opengis.feature.simple.SimpleFeature
 import org.postgresql.util.PSQLException
+import java.io.File
 
 class ExecuteShp(private val file: File) {
 
@@ -39,7 +39,7 @@ class ExecuteShp(private val file: File) {
                     val coordinate = setupCoordinate(feature!!)
                     columnValues[0] = "st_geomfromtext('$coordinate', ${Config.origin})"
                     for (j in 1 until columnCount) {
-                        val field = ValueField(null, feature.getAttribute(j).toString())
+                        val field = ValueField(columnNames[j], feature.getAttribute(j).toString())
                         columnValues[j] = field.value
                     }
                     val valueList = columnValues.joinToString(",").trim()

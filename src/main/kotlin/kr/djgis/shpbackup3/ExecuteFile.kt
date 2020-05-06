@@ -22,13 +22,15 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
             "wtl_cap_ps", // 상수관말
             "wtl_taper_ps", // 편락관
             "wtl_userlabel_ps", // 사용자주기 (임의 테이블명)
+            "wtl_wspipe_ls", // 수자원광역관
             "elevation_point", // 표고점
             "road", // 도로
             "road_section", // 도로구역
             "road_test",
             "swl_hmpipe_ls", // 가정내오수관
             "swl_pipe_as", // 면형관
-            "swl_cap_ps" // 하수관말
+            "swl_cap_ps", // 하수관말
+            "swl_spew_ps" // 토구
         )
 
     @Throws(Throwable::class)
