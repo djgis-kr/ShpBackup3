@@ -143,6 +143,7 @@ gradle-app.setting
 /logs/
 /shp/
 /Run.bat
+/release
 
 ### How to update git index with new .gitignore ###
 
