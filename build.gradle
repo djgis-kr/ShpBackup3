@@ -72,6 +72,9 @@ jar {
     manifest {
         attributes 'Main-Class': 'kr.djgis.shpbackup3.MainKt'
     }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
