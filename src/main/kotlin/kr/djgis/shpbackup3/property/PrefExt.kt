@@ -1,10 +1,10 @@
 package kr.djgis.shpbackup3.property
 
+import kr.djgis.shpbackup3.logger
 import java.io.BufferedReader
 import java.io.FileInputStream
 import java.io.InputStreamReader
-import java.util.Properties
-import kr.djgis.shpbackup3.logger
+import java.util.*
 
 private val properties = Properties()
 
@@ -13,7 +13,7 @@ fun initPropertyFile(filePath: String): Properties {
         FileInputStream(filePath).use {
             properties.load(BufferedReader(InputStreamReader(it, "UTF-8")))
         }
-    } catch (e: Throwable) {
+    } catch (e: Exception) {
         logger.error(e.message)
     }
     return properties

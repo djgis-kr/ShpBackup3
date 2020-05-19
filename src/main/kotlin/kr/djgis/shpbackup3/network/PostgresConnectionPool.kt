@@ -1,9 +1,9 @@
 package kr.djgis.shpbackup3.network
 
-import java.sql.Connection
-import java.sql.SQLException
 import kr.djgis.shpbackup3.property.Config
 import org.apache.commons.dbcp2.BasicDataSource
+import java.sql.Connection
+import kotlin.system.exitProcess
 
 object PostgresConnectionPool {
 
@@ -18,11 +18,18 @@ object PostgresConnectionPool {
             maxIdle = Config.maxIdle
             maxTotal = Config.maxTotal
             minEvictableIdleTimeMillis = -1
+            validationQuery = "SELECT 1"
+            validationQueryTimeout = 10
         }
     }
 
-    @Throws(SQLException::class)
+    @Throws(Throwable::class)
     fun getConnection(): Connection {
-        return source.connection
+        return try {
+            source.connection
+        } catch (e: Exception) {
+            e.printStackTrace()
+            exitProcess(401)
+        }
     }
 }

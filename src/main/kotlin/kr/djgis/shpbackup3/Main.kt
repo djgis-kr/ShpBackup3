@@ -1,19 +1,18 @@
 package kr.djgis.shpbackup3
 
-import java.io.File
-import java.io.FileNotFoundException
-import java.util.Date
-import java.util.Properties
-import java.util.concurrent.Callable
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 import kr.djgis.shpbackup3.property.Config
 import kr.djgis.shpbackup3.property.Status
 import kr.djgis.shpbackup3.property.at
 import kr.djgis.shpbackup3.property.initPropertyFile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.File
+import java.io.FileNotFoundException
+import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 val logger: Logger = LoggerFactory.getLogger("kr.djgis.shpbackup3.MainKt")
 lateinit var shpFiles: Array<File>
@@ -39,6 +38,7 @@ private fun setupProperties() {
     }
 }
 
+@Throws(Throwable::class)
 private fun runExecutor() {
     val tasks: MutableCollection<Callable<Nothing>> = ArrayList(shpFiles.size)
     shpFiles.forEach { file ->

@@ -1,6 +1,6 @@
 package kr.djgis.shpbackup3.property
 
-import java.util.Collections
+import java.util.*
 import kotlin.collections.HashSet
 
 object Status {

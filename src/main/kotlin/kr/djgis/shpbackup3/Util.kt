@@ -14,7 +14,7 @@ import java.sql.Types
 import java.text.ParseException
 import java.text.SimpleDateFormat
 
-@Throws(Throwable::class)
+@Throws(Exception::class)
 inline fun <R> Connection.open(rollback: Boolean = false, block: (Connection) -> R): R {
     try {
         if (rollback) {
@@ -22,7 +22,7 @@ inline fun <R> Connection.open(rollback: Boolean = false, block: (Connection) ->
             this.setSavepoint()
         }
         return block(this)
-    } catch (e: Throwable) {
+    } catch (e: Exception) {
         e.printStackTrace()
         throw e
     } finally {

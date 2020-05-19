@@ -25,11 +25,8 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
             "wtl_wspipe_ls", // 수자원광역관 (임의 테이블명)
             "swl_hmpipe_ls", // 가정내오수관 (임의 테이블명)
             "swl_pipe_as", // 면형관
-            "swl_cap_ps" // 하수관말
-//            "elevation_point", // 표고점
-//            "road", // 도로
-//            "road_section", // 도로구역
-//            "road_test",
+            "swl_cap_ps", // 하수관말
+            "geo_line" // 지적선
         )
 
     @Throws(Throwable::class)
