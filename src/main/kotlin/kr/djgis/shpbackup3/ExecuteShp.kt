@@ -37,7 +37,7 @@ class ExecuteShp(private val file: File) {
                 features.forEach feature@{ feature ->
                     val columnValues = arrayOfNulls<String>(columnCount)
                     val coordinate = setupCoordinate(feature!!)
-                    columnValues[0] = "st_geomfromtext('$coordinate', ${Config.origin})"
+                    columnValues[0] = "ST_GeomFromText($coordinate, ${Config.origin})"
                     for (j in 1 until columnCount) {
                         val field = ValueField(columnNames[j], feature.getAttribute(j).toString())
                         columnValues[j] = field.value

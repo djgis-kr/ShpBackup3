@@ -51,9 +51,16 @@ fun setupFtrIdn(feature: SimpleFeature): String {
 }
 
 fun setupCoordinate(feature: SimpleFeature): String {
-    return when ("MULTI" in "${feature.getAttribute(0)}") {
-        true -> "${feature.getAttribute(0)}"
-        false -> "MULTI${feature.getAttribute(0)}"
+    return when {
+        "MULTI" in "${feature.getAttribute(0)}" -> {
+            when {
+                "MULTILINESTRING" in "${feature.getAttribute(0)}" -> {
+                    "ST_AsText(ST_LineMerge(ST_GeomFromText('${feature.getAttribute(0)}')))"
+                }
+                else -> "'${feature.getAttribute(0)}'"
+            }
+        }
+        else -> "'MULTI${feature.getAttribute(0)}'"
     }
 }
 

@@ -78,7 +78,7 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                         }
                         val columnValues = arrayOfNulls<String>(columnCount + 1)
                         val coordinate = setupCoordinate(feature)
-                        columnValues[0] = "st_geomfromtext('$coordinate', ${Config.origin})"
+                        columnValues[0] = "ST_GeomFromText($coordinate, ${Config.origin})"
                         while (resultSet.next()) for (j in 1..columnCount) {
                             val field = ValueField(metaData.getColumnType(j), resultSet.getString(j))
                             columnValues[j] = field.value
