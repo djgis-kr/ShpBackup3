@@ -80,7 +80,7 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                         val coordinate = setupCoordinate(feature)
                         columnValues[0] = "ST_GeomFromText($coordinate, ${Config.origin})"
                         while (resultSet.next()) for (j in 1..columnCount) {
-                            val field = ValueField(metaData.getColumnType(j), resultSet.getString(j))
+                            val field = ValueField(metaData.getColumnType(j), resultSet.getString(j).replace("'","''"))
                             columnValues[j] = field.value
                         }
                         val valueList = columnValues.joinToString(",").trim()
