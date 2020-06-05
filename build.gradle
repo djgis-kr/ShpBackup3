@@ -2,7 +2,7 @@ buildscript {
     ext.kotlin_version = '1.3.72'
     repositories {
         maven {
-            url "https://download.osgeo.org/webdav/geotools/"
+            url "https://repo.osgeo.org/repository/release/"
         }
         mavenCentral()
     }
@@ -21,9 +21,6 @@ version gitVersionName
 
 repositories {
     maven {
-        url "https://download.osgeo.org/webdav/geotools/"
-    }
-    maven {
         url "https://repo.osgeo.org/repository/release/"
     }
     mavenCentral()
@@ -35,6 +32,7 @@ configurations {
 }
 
 dependencies {
+    // compile -> implementation 으로 바꾸지 말 것!
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
@@ -72,12 +70,14 @@ jar {
     manifest {
         attributes 'Main-Class': 'kr.djgis.shpbackup3.MainKt'
     }
-
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
-
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+tasks.withType(Jar) {
+    destinationDirectory = file("$rootDir/release/")
 }
 
 sourceSets {
