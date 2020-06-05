@@ -39,12 +39,17 @@ class ExecuteShp(private val file: File) {
                     val coordinate = setupCoordinate(feature!!)
                     columnValues[0] = "ST_GeomFromText($coordinate, ${Config.origin})"
                     for (j in 1 until columnCount) {
-                        val field = ValueField(columnNames[j], feature.getAttribute(j).toString().replace("'","''"))
+                        var attribute = feature.getAttribute(j)
+                        if (attribute != null) {
+                            attribute = attribute.toString().replace("'", "''")
+                        } else {
+                            attribute = attribute.toString()
+                        }
+                        val field = ValueField(columnNames[j], attribute)
                         columnValues[j] = field.value
                     }
                     val valueList = columnValues.joinToString(",").trim()
                     val insertQuery = "INSERT INTO $tableCode ($columnList) VALUES ($valueList)"
-                    println(insertQuery)
                     try {
                         pStmt.execute(insertQuery)
                     } catch (e: PSQLException) {
