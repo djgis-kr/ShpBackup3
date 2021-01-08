@@ -19,14 +19,15 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
     private val tableCode = fileName at tableList
     private val shpOnlyTable =
         setOf(
+            "geo_line_as", // 지적선
+            "swl_cap_ps", // 하수관말
+            "swl_hmpipe_ls", // 가정내오수관 (임의 테이블명)
+            "swl_pipe_as", // 면형관
             "wtl_cap_ps", // 상수관말
+            "wtl_pipe_dir_ps",
             "wtl_taper_ps", // 편락관
             "wtl_userlabel_ps", // 사용자주기 (임의 테이블명)
             "wtl_wspipe_ls", // 수자원광역관 (임의 테이블명)
-            "swl_hmpipe_ls", // 가정내오수관 (임의 테이블명)
-            "swl_pipe_as", // 면형관
-            "swl_cap_ps", // 하수관말
-            "geo_line_as" // 지적선
         )
 
     @Throws(Throwable::class)
