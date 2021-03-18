@@ -14,6 +14,8 @@ import java.sql.Types
 import java.text.ParseException
 import java.text.SimpleDateFormat
 
+val digitMatchPattern = "[0-9]+".toRegex()
+
 @Throws(Exception::class)
 inline fun <R> Connection.open(rollback: Boolean = false, block: (Connection) -> R): R {
     try {
@@ -76,19 +78,27 @@ fun setupQuery(fileName: String, tableCode: String, ftrIdn: String): String {
     }
 }
 
-fun Connection.reportResults(fileName: String, tableCode: String, rowCount: Int, errorCount: Int) {
+fun selectFtrIdn(message: String): Int {
+    val matchResult = digitMatchPattern.find(input = message)?.value
+    return if (matchResult !== null) matchResult.toInt() else 0
+}
+
+fun Connection.reportResults(fileName: String, rowCount: Int, errorCount: Int) {
+    val paddedFileName = fileName.padEnd(8 - fileName.length)
+    val validCount = (rowCount - errorCount).toString().padEnd(4)
+    val invalidCount = errorCount.toString().padEnd(2)
     when (errorCount) {
         0 -> {
-            println("${Config.local} 정상 완료: $fileName")
-            logger.info("$fileName $tableCode ${rowCount - errorCount} rows")
+            println("${Config.local} 정상 완료: $paddedFileName")
+            logger.info("$paddedFileName $validCount 건")
         }
         in 1 until rowCount -> {
-            println("${Config.local} 일부 에러: $fileName($errorCount)")
-            logger.info("$fileName $tableCode ${rowCount - errorCount} rows & $errorCount error(s).")
+            println("${Config.local} 일부 에러: $paddedFileName (오류 $errorCount 건)")
+            logger.info("$paddedFileName $validCount 건 → 오류 $invalidCount 건")
         }
         else -> {
             this.rollback()
-            println("${Config.local} 전체 에러: $fileName($errorCount)...백업 취소 및 롤백 실행")
+            println("${Config.local} 전체 에러: $paddedFileName ($errorCount 건 오류)...백업 취소 및 롤백 실행")
         }
     }
 }

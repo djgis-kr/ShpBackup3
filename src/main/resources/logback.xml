@@ -12,11 +12,11 @@
         <file>${LOGS_ABSOLUTE_PATH}/error_log.log</file>
         <encoder>
             <charset>UTF-8</charset>
-            <pattern>[%d{yyyy-MM-dd HH:mm:ss}] %msg%n</pattern>
+            <pattern>%n[%d{yyyy-MM-dd HH:mm:ss}] %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOGS_ABSOLUTE_PATH}/error.%d{yyyy-MM-dd}.#%i.log.zip</fileNamePattern>
-            <maxFileSize>5MB</maxFileSize>
+            <maxFileSize>15MB</maxFileSize>
             <totalSizeCap>500MB</totalSizeCap>
         </rollingPolicy>
     </appender>
@@ -34,9 +34,9 @@
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOGS_ABSOLUTE_PATH}/history.%d{yyyy-MM}.#%i.log.zip</fileNamePattern>
-            <maxFileSize>5MB</maxFileSize>
+            <maxFileSize>15MB</maxFileSize>
             <totalSizeCap>500MB</totalSizeCap>
-            <maxHistory>31</maxHistory>
+            <maxHistory>100</maxHistory>
         </rollingPolicy>
     </appender>
 

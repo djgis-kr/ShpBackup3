@@ -57,13 +57,5 @@ private fun runExecutor() {
         logger.info("——————END——————\n")
         logger.error("——————END——————\n")
         Status.tableCodeSet.clear()
-        if (executor.isShutdown) {
-//            if (Config.isPostQuery) {
-//                println("${Config.local} 업데이트 시작")
-//                executePostQuery()
-//            } else {
-//                println("${Config.local} 모든 작업 종료: ${Date()}")
-//            }
-        }
     }
 }

@@ -14,7 +14,7 @@ import java.util.concurrent.Callable
 
 class ExecuteFile(private val file: File) : Callable<Nothing> {
 
-    private var errorCount = 0
+    private var errorList = mutableListOf<String>()
     private val fileName = file.nameWithoutExtension
     private val tableCode = fileName at tableList
     private val shpOnlyTable =
@@ -69,13 +69,11 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                             )
                             resultSet = mStmt.executeQuery(selectQuery)
                             if (!resultSet.isBeforeFirst) {
-                                errorCount += 1
-                                logger.error("$fileName $tableCode ($ftrIdn) MySQL 데이터베이스에서 데이터를 찾을 수 없습니다.")
+                                errorList.add("$ftrIdn  MySQL 데이터베이스에서 데이터를 찾을 수 없습니다.")
                                 return@feature
                             }
                         } catch (e: SQLSyntaxErrorException) {
-                            errorCount += 1
-                            logger.error("$fileName $tableCode ($ftrIdn) ${e.message}")
+                            errorList.add("$ftrIdn ${e.message}")
                             return@feature
                         }
                         val columnValues = arrayOfNulls<String>(columnCount + 1)
@@ -84,7 +82,7 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                         while (resultSet.next()) for (j in 1..columnCount) {
                             var resultString = resultSet.getString(j)
                             if (resultString != null) {
-                                resultString = resultString.replace("'","''")
+                                resultString = resultString.replace("'", "''")
                             }
                             val field = ValueField(metaData.getColumnType(j), resultString)
                             columnValues[j] = field.value
@@ -96,17 +94,25 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                         try {
                             pStmt.execute(insertQuery)
                         } catch (e: PSQLException) {
-                            errorCount += 1
-                            logger.error("$fileName $tableCode ($ftrIdn) ${e.message}")
+                            errorList.add(
+                                "$ftrIdn ${e.message}"
+                                    .replace("\n", " ")
+                                    .replace("오류:", "")
+                                    .replace("Detail:", "→")
+                            )
                         } finally {
                             pConnection.commit()
                         }
                     }
+                    if (errorList.size > 0) {
+                        errorList.sortBy { selectFtrIdn(it) }
+                        errorList.add(0, "$fileName(${tableCode.toUpperCase()}): ${errorList.size} 건")
+                        logger.error(errorList.joinToString("\n"))
+                    }
                     pConnection.reportResults(
                         fileName = fileName,
-                        tableCode = tableCode,
                         rowCount = features.size,
-                        errorCount = errorCount
+                        errorCount = errorList.size
                     )
                 }
             }

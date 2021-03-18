@@ -10,7 +10,7 @@ import java.io.File
 
 class ExecuteShp(private val file: File) {
 
-    private var errorCount = 0
+    private val errorList = mutableListOf<String>()
     private val fileName = file.nameWithoutExtension
     private val tableCode = fileName at tableList
 
@@ -53,17 +53,24 @@ class ExecuteShp(private val file: File) {
                     try {
                         pStmt.execute(insertQuery)
                     } catch (e: PSQLException) {
-                        errorCount += 1
-                        logger.error("$fileName $tableCode ${e.message}")
+                        errorList.add(
+                            "${e.message}"
+                                .replace("\n", " ")
+                                .replace("오류:", "")
+                                .replace("Detail:", "→")
+                        )
                     } finally {
                         pConnection.commit()
                     }
                 }
+                if (errorList.size > 0) {
+                    errorList.add(0, "$fileName(${tableCode.toUpperCase()}): ${errorList.size} 건")
+                    logger.error(errorList.joinToString("\n"))
+                }
                 pConnection.reportResults(
                     fileName = fileName,
-                    tableCode = tableCode,
                     rowCount = features.size,
-                    errorCount = errorCount
+                    errorCount = errorList.size
                 )
             }
         }
