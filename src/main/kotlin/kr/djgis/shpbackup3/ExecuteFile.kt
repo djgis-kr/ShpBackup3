@@ -27,6 +27,7 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
             "wtl_pipe_dir_ps", // 물방향
             "wtl_prme_ps", // 수압측정
             "wtl_taper_ps", // 편락관
+            "wtl_userlabel_as", // 다목적영역 (임의 테이블명)
             "wtl_userlabel_ps", // 사용자주기 (임의 테이블명)
             "wtl_wspipe_ls", // 수자원광역관 (임의 테이블명)
         )
