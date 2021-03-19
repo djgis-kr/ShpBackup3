@@ -14,7 +14,8 @@ import java.util.concurrent.Callable
 
 class ExecuteFile(private val file: File) : Callable<Nothing> {
 
-    private var errorList = mutableListOf<String>()
+    private val errorList = mutableListOf<String>()
+    private var errorCount = 0
     private val fileName = file.nameWithoutExtension
     private val tableCode = fileName at tableList
     private val shpOnlyTable =
@@ -106,6 +107,7 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                         }
                     }
                     if (errorList.size > 0) {
+                        errorCount = errorList.size
                         errorList.sortBy { selectFtrIdn(it) }
                         errorList.add(0, "$fileName(${tableCode.toUpperCase()}): ${errorList.size} 건")
                         logger.error(errorList.joinToString("\n"))
@@ -113,7 +115,7 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
                     pConnection.reportResults(
                         fileName = fileName,
                         rowCount = features.size,
-                        errorCount = errorList.size
+                        errorCount = errorCount
                     )
                 }
             }

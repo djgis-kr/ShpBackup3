@@ -11,6 +11,7 @@ import java.io.File
 class ExecuteShp(private val file: File) {
 
     private val errorList = mutableListOf<String>()
+    private var errorCount = 0
     private val fileName = file.nameWithoutExtension
     private val tableCode = fileName at tableList
 
@@ -64,13 +65,14 @@ class ExecuteShp(private val file: File) {
                     }
                 }
                 if (errorList.size > 0) {
+                    errorCount = errorList.size
                     errorList.add(0, "$fileName(${tableCode.toUpperCase()}): ${errorList.size} 건")
                     logger.error(errorList.joinToString("\n"))
                 }
                 pConnection.reportResults(
                     fileName = fileName,
                     rowCount = features.size,
-                    errorCount = errorList.size
+                    errorCount = errorCount
                 )
             }
         }
