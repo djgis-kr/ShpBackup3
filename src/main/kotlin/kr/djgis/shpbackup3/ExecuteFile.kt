@@ -31,6 +31,8 @@ class ExecuteFile(private val file: File) : Callable<Nothing> {
             "wtl_userlabel_as", // 다목적영역 (임의 테이블명)
             "wtl_userlabel_ps", // 사용자주기 (임의 테이블명)
             "wtl_wspipe_ls", // 수자원광역관 (임의 테이블명)
+            "bml_badm_as", // 법정동경계
+            "bml_hadm_as" // 행정동경계
         )
 
     @Throws(Throwable::class)
