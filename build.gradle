@@ -35,9 +35,9 @@ dependencies {
     // compile -> implementation 으로 바꾸지 말 것!
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-core
-    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
+    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.2.10'
     // https://mvnrepository.com/artifact/mysql/mysql-connector-java
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.23'
     // https://mvnrepository.com/artifact/org.postgresql/postgresql
